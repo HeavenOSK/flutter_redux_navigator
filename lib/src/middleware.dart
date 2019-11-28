@@ -14,40 +14,42 @@ typedef NavigatorMiddlewareHandler<State, Action>
 List<Middleware<dynamic>> navigatorMiddleware(
   GlobalKey<NavigatorState> key, {
   List<Middleware<dynamic>> customMiddleware = const [],
-}) =>
-    [
-      TypedMiddleware<dynamic, PushAction>(
-        _handlePushAction(key),
-      ),
-      TypedMiddleware<dynamic, PushNamedAction>(
-        _handlePushNamedRoute(key),
-      ),
-      TypedMiddleware<dynamic, PushReplacementAction>(
-        _handlePushReplacementAction(key),
-      ),
-      TypedMiddleware<dynamic, PushReplacementNamedAction>(
-        _handlePushReplacementNamedAction(key),
-      ),
-      TypedMiddleware<dynamic, PushAndRemoveUntilAction>(
-        _handlePushAndRemoveUntilAction(key),
-      ),
-      TypedMiddleware<dynamic, PushNamedAndRemoveUntilAction>(
-        _handlePushNamedAndRemoveUntilAction(key),
-      ),
-      TypedMiddleware<dynamic, PopAction>(
-        _handlePopAction(key),
-      ),
-      TypedMiddleware<dynamic, MaybePopAction>(
-        _handleMaybePopAction(key),
-      ),
-      TypedMiddleware<dynamic, PopUntilAction>(
-        _handlePopUntilAction(key),
-      ),
-      TypedMiddleware<dynamic, ShowDialogAction>(
-        _handleShowDialogAction(key),
-      ),
-      ...customMiddleware,
-    ];
+}) {
+  assert(customMiddleware != null);
+  return [
+    TypedMiddleware<dynamic, PushAction>(
+      _handlePushAction(key),
+    ),
+    TypedMiddleware<dynamic, PushNamedAction>(
+      _handlePushNamedRoute(key),
+    ),
+    TypedMiddleware<dynamic, PushReplacementAction>(
+      _handlePushReplacementAction(key),
+    ),
+    TypedMiddleware<dynamic, PushReplacementNamedAction>(
+      _handlePushReplacementNamedAction(key),
+    ),
+    TypedMiddleware<dynamic, PushAndRemoveUntilAction>(
+      _handlePushAndRemoveUntilAction(key),
+    ),
+    TypedMiddleware<dynamic, PushNamedAndRemoveUntilAction>(
+      _handlePushNamedAndRemoveUntilAction(key),
+    ),
+    TypedMiddleware<dynamic, PopAction>(
+      _handlePopAction(key),
+    ),
+    TypedMiddleware<dynamic, MaybePopAction>(
+      _handleMaybePopAction(key),
+    ),
+    TypedMiddleware<dynamic, PopUntilAction>(
+      _handlePopUntilAction(key),
+    ),
+    TypedMiddleware<dynamic, ShowDialogAction>(
+      _handleShowDialogAction(key),
+    ),
+    ...customMiddleware,
+  ];
+}
 
 NavigatorMiddlewareHandler<dynamic, PushAction> _handlePushAction =
     (navigatorKey) {

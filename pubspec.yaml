@@ -1,0 +1,18 @@
+name: redux_navigator
+description: A new Flutter package.
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.2.3 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  redux: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:

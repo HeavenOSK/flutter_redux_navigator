@@ -32,6 +32,16 @@ class PushReplacementNamedAction {
   final Object arguments;
 }
 
+class PopAndPushNamedAction {
+  const PopAndPushNamedAction(
+    this.routeName, {
+    this.arguments,
+  });
+
+  final String routeName;
+  final Object arguments;
+}
+
 class PushAndRemoveUntilAction {
   const PushAndRemoveUntilAction(this.route, this.predicate);
 

@@ -4,12 +4,11 @@ import 'package:redux/redux.dart';
 
 import 'actions.dart';
 
-typedef _TypedMiddlewareCallback<State, Action> = void Function(
-    Store<State> store, Action action, NextDispatcher next);
-
-typedef NavigatorMiddlewareHandler<State, Action>
-    = _TypedMiddlewareCallback<State, Action> Function(
-        GlobalKey<NavigatorState> navigatorKey);
+typedef TypedMiddlewareCallback<State, Action> = void Function(
+  Store<State> store,
+  Action action,
+  NextDispatcher next,
+);
 
 List<Middleware<dynamic>> navigatorMiddleware(
   GlobalKey<NavigatorState> key, {
@@ -28,6 +27,9 @@ List<Middleware<dynamic>> navigatorMiddleware(
     ),
     TypedMiddleware<dynamic, PushReplacementNamedAction>(
       _handlePushReplacementNamedAction(key),
+    ),
+    TypedMiddleware<dynamic, PopAndPushNamedAction>(
+      _handlePopAndPushNamedAction(key),
     ),
     TypedMiddleware<dynamic, PushAndRemoveUntilAction>(
       _handlePushAndRemoveUntilAction(key),
@@ -51,65 +53,72 @@ List<Middleware<dynamic>> navigatorMiddleware(
   ];
 }
 
-NavigatorMiddlewareHandler<dynamic, PushAction> _handlePushAction =
-    (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.push(action.route);
-};
+TypedMiddlewareCallback<dynamic, PushAction> _handlePushAction(
+    GlobalKey<NavigatorState> navigatorKey) {
+  return (_, action, __) => navigatorKey.currentState.push<void>(action.route);
+}
 
-NavigatorMiddlewareHandler<dynamic, PushNamedAction> _handlePushNamedRoute =
-    (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PushNamedAction> _handlePushNamedRoute(
+    GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState
       .pushNamed(action.routeName, arguments: action.arguments);
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, PushReplacementAction>
-    _handlePushReplacementAction = (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PushReplacementAction>
+    _handlePushReplacementAction(GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) =>
-      navigatorKey.currentState.pushReplacement(action.route);
-};
+      navigatorKey.currentState.pushReplacement<void, void>(action.route);
+}
 
-NavigatorMiddlewareHandler<dynamic, PushReplacementNamedAction>
-    _handlePushReplacementNamedAction = (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PushReplacementNamedAction>
+    _handlePushReplacementNamedAction(GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState
       .pushReplacementNamed(action.routeName, arguments: action.arguments);
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, PushAndRemoveUntilAction>
-    _handlePushAndRemoveUntilAction = (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PopAndPushNamedAction>
+    _handlePopAndPushNamedAction(GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState
-      .pushAndRemoveUntil(action.route, action.predicate);
-};
+      .popAndPushNamed(action.routeName, arguments: action.arguments);
+}
 
-NavigatorMiddlewareHandler<dynamic, PushNamedAndRemoveUntilAction>
-    _handlePushNamedAndRemoveUntilAction = (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PushAndRemoveUntilAction>
+    _handlePushAndRemoveUntilAction(GlobalKey<NavigatorState> navigatorKey) {
+  return (_, action, __) => navigatorKey.currentState
+      .pushAndRemoveUntil<void>(action.route, action.predicate);
+}
+
+TypedMiddlewareCallback<dynamic, PushNamedAndRemoveUntilAction>
+    _handlePushNamedAndRemoveUntilAction(
+        GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState.pushNamedAndRemoveUntil(
         action.routeName,
         action.predicate,
         arguments: action.arguments,
       );
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, PopAction> _handlePopAction =
-    (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PopAction> _handlePopAction(
+    GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState.pop();
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, MaybePopAction> _handleMaybePopAction =
-    (navigatorKey) {
+TypedMiddlewareCallback<dynamic, MaybePopAction> _handleMaybePopAction(
+    GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) => navigatorKey.currentState.maybePop();
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, PopUntilAction> _handlePopUntilAction =
-    (navigatorKey) {
+TypedMiddlewareCallback<dynamic, PopUntilAction> _handlePopUntilAction(
+    GlobalKey<NavigatorState> navigatorKey) {
   return (_, action, __) =>
       navigatorKey.currentState.popUntil(action.predicate);
-};
+}
 
-NavigatorMiddlewareHandler<dynamic, ShowDialogAction> _handleShowDialogAction =
-    (navigatorKey) {
-  return (_, action, __) => showDialog(
+TypedMiddlewareCallback<dynamic, ShowDialogAction> _handleShowDialogAction(
+    GlobalKey<NavigatorState> navigatorKey) {
+  return (_, action, __) => showDialog<void>(
         context: navigatorKey.currentState.overlay.context,
         barrierDismissible: action.barrierDismissible,
         builder: action.builder,
       );
-};
+}

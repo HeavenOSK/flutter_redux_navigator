@@ -19,7 +19,7 @@ void main() {
         appReducer,
         initialState: AppState(),
         middleware: [
-          LoggingMiddleware.printer(),
+          LoggingMiddleware<AppState>.printer(),
           ...navigatorMiddleware(navigatorKey),
         ],
       ),
@@ -29,7 +29,7 @@ void main() {
           primarySwatch: Colors.blue,
         ),
         navigatorKey: navigatorKey,
-        home: HomePage(),
+        home: const HomePage(),
       ),
     ),
   );
@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget {
         itemBuilder: (context, index) => InkWell(
           onTap: () => store.dispatch(
             PushAction(
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
                 builder: (context) => DetailPage(index: index),
               ),
             ),

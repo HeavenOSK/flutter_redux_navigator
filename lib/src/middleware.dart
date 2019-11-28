@@ -4,25 +4,25 @@ import 'package:redux/redux.dart';
 
 import 'actions.dart';
 
-typedef NavigatorMiddlewareCallback<State, Action> = void Function(
+typedef NavigatorMiddlewareCallback<S, T> = void Function(
   GlobalKey<NavigatorState> navigatorKey,
-  Store<State> store,
-  Action action,
+  Store<S> store,
+  T action,
   NextDispatcher next,
 );
 
-class NavigatorMiddleware<State, Action> implements MiddlewareClass<State> {
-  const NavigatorMiddleware({
+class TypedNavigatorMiddleware<S, T> implements MiddlewareClass<S> {
+  const TypedNavigatorMiddleware({
     @required this.key,
     @required this.callback,
   });
 
   final GlobalKey<NavigatorState> key;
-  final NavigatorMiddlewareCallback<State, Action> callback;
+  final NavigatorMiddlewareCallback<S, T> callback;
 
   @override
-  void call(Store<State> store, dynamic action, NextDispatcher next) {
-    if (action is Action) {
+  void call(Store<S> store, dynamic action, NextDispatcher next) {
+    if (action is T) {
       callback(key, store, action, next);
     } else {
       next(action);
@@ -30,8 +30,8 @@ class NavigatorMiddleware<State, Action> implements MiddlewareClass<State> {
   }
 }
 
-typedef NavigatorMiddlewareCreator<State, Action>
-    = NavigatorMiddleware<State, Action> Function(
+typedef TypedNavigatorMiddlewareCreator<S, T> = TypedNavigatorMiddleware<S, T>
+    Function(
   GlobalKey<NavigatorState> navigatorKey,
 );
 
@@ -64,11 +64,11 @@ typedef NavigatorMiddlewareCreator<State, Action>
 ///   PushNamedAction('/detail/')
 /// );
 ///
-List<Middleware<dynamic>> navigatorMiddleware(
+List<Middleware<S>> navigatorMiddleware<S>(
   /// The [GlobalKey] for [Navigator] that you use. You need to set
   /// the same [GlobalKey] for here and [MaterialApp] or [Navigator] that
   /// you use.
-  GlobalKey<NavigatorState> key, {
+  GlobalKey<NavigatorState> navigatorKey, {
 
   /// A list of custom [Middleware].
   ///
@@ -88,87 +88,80 @@ List<Middleware<dynamic>> navigatorMiddleware(
   ///   ],
   /// );
   ///
-  List<NavigatorMiddlewareCreator> navigatorMiddlewareCreators,
+  List<TypedNavigatorMiddlewareCreator<S, dynamic>> navigatorMiddlewareCreators,
 }) {
   return [
-    NavigatorMiddleware<dynamic, PushAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.push<void>(action.route);
-      },
+    TypedNavigatorMiddleware<S, PushAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) =>
+          key.currentState.push<void>(action.route),
     ),
-    NavigatorMiddleware<dynamic, PushNamedAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState
-            .pushNamed(action.routeName, arguments: action.arguments);
-      },
+    TypedNavigatorMiddleware<S, PushNamedAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => key.currentState.pushNamed(
+        action.routeName,
+        arguments: action.arguments,
+      ),
     ),
-    NavigatorMiddleware<dynamic, PushReplacementAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.pushReplacement<void, void>(action.route);
-      },
+    TypedNavigatorMiddleware<S, PushReplacementAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) =>
+          key.currentState.pushReplacement<void, void>(action.route),
     ),
-    NavigatorMiddleware<dynamic, PushReplacementNamedAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.pushReplacementNamed(action.routeName,
-            arguments: action.arguments);
-      },
+    TypedNavigatorMiddleware<S, PushReplacementNamedAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) =>
+          key.currentState.pushReplacementNamed(
+        action.routeName,
+        arguments: action.arguments,
+      ),
     ),
-    NavigatorMiddleware<dynamic, PopAndPushNamedAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState
-            .popAndPushNamed(action.routeName, arguments: action.arguments);
-      },
+    TypedNavigatorMiddleware<S, PopAndPushNamedAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => key.currentState.popAndPushNamed(
+        action.routeName,
+        arguments: action.arguments,
+      ),
     ),
-    NavigatorMiddleware<dynamic, PushAndRemoveUntilAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState
-            .pushAndRemoveUntil<void>(action.route, action.predicate);
-      },
+    TypedNavigatorMiddleware<S, PushAndRemoveUntilAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) =>
+          key.currentState.pushAndRemoveUntil<void>(
+        action.route,
+        action.predicate,
+      ),
     ),
-    NavigatorMiddleware<dynamic, PushNamedAndRemoveUntilAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.pushNamedAndRemoveUntil(
-          action.routeName,
-          action.predicate,
-          arguments: action.arguments,
-        );
-      },
+    TypedNavigatorMiddleware<S, PushNamedAndRemoveUntilAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) =>
+          key.currentState.pushNamedAndRemoveUntil(
+        action.routeName,
+        action.predicate,
+        arguments: action.arguments,
+      ),
     ),
-    NavigatorMiddleware<dynamic, PopAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.pop();
-      },
+    TypedNavigatorMiddleware<S, PopAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => key.currentState.pop(),
     ),
-    NavigatorMiddleware<dynamic, MaybePopAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.maybePop();
-      },
+    TypedNavigatorMiddleware<S, MaybePopAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => key.currentState.maybePop(),
     ),
-    NavigatorMiddleware<dynamic, PopUntilAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        key.currentState.popUntil(action.predicate);
-      },
+    TypedNavigatorMiddleware<S, PopUntilAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => key.currentState.popUntil(
+        action.predicate,
+      ),
     ),
-    NavigatorMiddleware<dynamic, ShowDialogAction>(
-      key: key,
-      callback: (key, state, action, next) {
-        showDialog<void>(
-          context: key.currentState.overlay.context,
-          barrierDismissible: action.barrierDismissible,
-          builder: action.builder,
-        );
-      },
+    TypedNavigatorMiddleware<S, ShowDialogAction>(
+      key: navigatorKey,
+      callback: (key, state, action, next) => showDialog<void>(
+        context: key.currentState.overlay.context,
+        barrierDismissible: action.barrierDismissible,
+        builder: action.builder,
+      ),
     ),
-    ...navigatorMiddlewareCreators.map((creator) => creator(key)),
+    ...navigatorMiddlewareCreators.map((creator) => creator(navigatorKey)),
   ];
 }

@@ -1,7 +1,7 @@
 name: redux_navigator
 description: navigator util for redux
 version: 0.0.1
-author: Ryunosuke Watanabe <ryunosukeheaven.ba@gmail.com>
+author: Ryunosuke Watanabe <heavenosk@gmail.com>
 homepage: https://github.com/HeavenOSK/redux_navigator
 environment:
   sdk: ">=2.2.3 <3.0.0"

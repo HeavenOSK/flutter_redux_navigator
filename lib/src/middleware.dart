@@ -4,14 +4,76 @@ import 'package:redux/redux.dart';
 
 import 'actions.dart';
 
+/// A function that uses for argument of [TypedMiddleware].
+///
+/// This helps defining Action's Type of handler for [TypedMiddleware].
+///
+/// ### Example
+///
+/// TypedMiddlewareCallback<dynamic, PushAction> _handlePushAction(
+///   GlobalKey<NavigatorState> navigatorKey) {
+///     return (_, action, __)
+///       => navigatorKey.currentState.push<void>(action.route);
+/// }
 typedef TypedMiddlewareCallback<State, Action> = void Function(
   Store<State> store,
   Action action,
   NextDispatcher next,
 );
 
+/// Returns list of simple [Middleware] which related [Navigator]'s controls.
+///
+/// All the [Middleware] here do only navigation or dialog related things.
+///
+/// ### Example of how to add navigatorMiddleware.
+///
+/// final store = Store<AppState>(
+///   appReducer,
+///   initialState: AppState(),
+///   middleware: [
+///     ...navigatorMiddleware(navigatorKey),
+///   ],
+/// );
+///
+/// ### Example of how to use with [Route].
+///
+/// store.dispatch(
+///   PushAction(
+///     MaterialPageRoute<void>(
+///       builder: (context) => DetailPage(),
+///   ),
+/// );
+///
+/// ### Example of how to use with path.
+///
+/// store.dispatch(
+///   PushNamedAction('/detail/')
+/// );
+///
 List<Middleware<dynamic>> navigatorMiddleware(
+  /// The [GlobalKey] for [Navigator] that you use. You need to set
+  /// the same [GlobalKey] for here and [MaterialApp] or [Navigator] that
+  /// you use.
   GlobalKey<NavigatorState> key, {
+
+  /// A list of custom [Middleware].
+  ///
+  /// You can add extra [Middleware] which related [Navigator]'s controls here.
+  ///
+  /// ### Example
+  /// final store = Store<AppState>(
+  ///   appReducer,
+  ///   initialState: AppState(),
+  ///   middleware: [
+  ///     ...navigatorMiddleware(
+  ///       navigatorKey,
+  ///       customMiddleware: [
+  ///         animatedDialogMiddleware,
+  ///       ],
+  ///     ),
+  ///   ],
+  /// );
+  ///
   List<Middleware<dynamic>> customMiddleware = const [],
 }) {
   assert(customMiddleware != null);

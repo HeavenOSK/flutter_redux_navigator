@@ -76,7 +76,7 @@ class PopUntilAction {
 }
 
 class ShowDialogAction {
-  ShowDialogAction({
+  const ShowDialogAction({
     @required this.builder,
     this.barrierDismissible = true,
   });

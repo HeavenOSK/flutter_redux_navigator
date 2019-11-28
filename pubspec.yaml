@@ -1,17 +1,14 @@
 name: redux_navigator
-description: A new Flutter package.
+description: navigator util for redux
 version: 0.0.1
-author:
-homepage:
-
+author: Ryunosuke Watanabe <ryunosukeheaven.ba@gmail.com>
+homepage: https://github.com/HeavenOSK/redux_navigator
 environment:
   sdk: ">=2.2.3 <3.0.0"
-
 dependencies:
   flutter:
     sdk: flutter
   redux: ^3.0.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

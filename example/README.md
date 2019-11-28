@@ -1,6 +1,6 @@
-# example
+# redux_navigator_example
 
-A new Flutter application.
+An example to demonstrate how to use redux_navigator.
 
 ## Getting Started
 

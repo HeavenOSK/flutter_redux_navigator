@@ -4,14 +4,14 @@ import 'package:redux_navigator/src/middleware.dart';
 import 'actions.dart';
 
 /// Returns list of basic callbacks to use [Navigator] methods.
-List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
+List<NavigatorMiddlewareBuilder<S, dynamic>> basicNavigatorCreator<S>() {
   return [
-    NavigatorMiddlewareCallback<S, PushAction>(
+    NavigatorMiddlewareBuilder<S, PushAction>(
       callback: (key, state, action, next) {
         key.currentState.push<void>(action.route);
       },
     ),
-    NavigatorMiddlewareCallback<S, PushNamedAction>(
+    NavigatorMiddlewareBuilder<S, PushNamedAction>(
       callback: (key, state, action, next) {
         key.currentState.pushNamed(
           action.routeName,
@@ -19,12 +19,12 @@ List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
         );
       },
     ),
-    NavigatorMiddlewareCallback<S, PushReplacementAction>(
+    NavigatorMiddlewareBuilder<S, PushReplacementAction>(
       callback: (key, state, action, next) {
         key.currentState.pushReplacement<void, void>(action.route);
       },
     ),
-    NavigatorMiddlewareCallback<S, PushReplacementNamedAction>(
+    NavigatorMiddlewareBuilder<S, PushReplacementNamedAction>(
       callback: (key, state, action, next) {
         key.currentState.pushReplacementNamed(
           action.routeName,
@@ -32,7 +32,7 @@ List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
         );
       },
     ),
-    NavigatorMiddlewareCallback<S, PopAndPushNamedAction>(
+    NavigatorMiddlewareBuilder<S, PopAndPushNamedAction>(
       callback: (key, state, action, next) {
         key.currentState.popAndPushNamed(
           action.routeName,
@@ -40,7 +40,7 @@ List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
         );
       },
     ),
-    NavigatorMiddlewareCallback<S, PushAndRemoveUntilAction>(
+    NavigatorMiddlewareBuilder<S, PushAndRemoveUntilAction>(
       callback: (key, state, action, next) {
         key.currentState.pushAndRemoveUntil<void>(
           action.route,
@@ -48,7 +48,7 @@ List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
         );
       },
     ),
-    NavigatorMiddlewareCallback<S, PushNamedAndRemoveUntilAction>(
+    NavigatorMiddlewareBuilder<S, PushNamedAndRemoveUntilAction>(
       callback: (key, state, action, next) {
         key.currentState.pushNamedAndRemoveUntil(
           action.routeName,
@@ -57,22 +57,22 @@ List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
         );
       },
     ),
-    NavigatorMiddlewareCallback<S, PopAction>(
+    NavigatorMiddlewareBuilder<S, PopAction>(
       callback: (key, state, action, next) {
         key.currentState.pop();
       },
     ),
-    NavigatorMiddlewareCallback<S, MaybePopAction>(
+    NavigatorMiddlewareBuilder<S, MaybePopAction>(
       callback: (key, state, action, next) {
         key.currentState.maybePop();
       },
     ),
-    NavigatorMiddlewareCallback<S, PopUntilAction>(
+    NavigatorMiddlewareBuilder<S, PopUntilAction>(
       callback: (key, state, action, next) => key.currentState.popUntil(
         action.predicate,
       ),
     ),
-    NavigatorMiddlewareCallback<S, ShowDialogAction>(
+    NavigatorMiddlewareBuilder<S, ShowDialogAction>(
       callback: (key, state, action, next) {
         showDialog<void>(
           context: key.currentState.overlay.context,

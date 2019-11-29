@@ -21,7 +21,23 @@ void main() {
         initialState: AppState(),
         middleware: [
           /// Add navigatorMiddleware to middleware with [navigatorKey].
-          ...navigatorMiddleware<AppState>(navigatorKey),
+          ...navigatorMiddleware<AppState>(
+            navigatorKey,
+            additionalMiddlewareBuilders: [
+              NavigatorMiddlewareBuilder<AppState, PushAction>(
+                callback: (navigatorKey, store, action, next) {
+                  navigatorKey.currentState.push<void>(
+                    action.route,
+                  );
+                },
+              ),
+              NavigatorMiddlewareBuilder<AppState, PopAction>(
+                callback: (navigatorKey, store, action, next) {
+                  navigatorKey.currentState.pop();
+                },
+              ),
+            ],
+          ),
         ],
       ),
       child: MaterialApp(
@@ -100,14 +116,15 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final store = StoreProvider.of<AppState>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Item Detail Page : $index'),
       ),
       body: Center(
-        child: Text(
-          'Item:$index',
-          style: Theme.of(context).textTheme.title,
+        child: RaisedButton(
+          onPressed: () => store.dispatch(const PopAction()),
+          child: const Text('POP'),
         ),
       ),
     );

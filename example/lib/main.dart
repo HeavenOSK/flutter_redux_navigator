@@ -10,6 +10,20 @@ AppState appReducer(AppState state, dynamic action) {
   return state;
 }
 
+class ShowAboutDialogAction {}
+
+final _customCallbacks = [
+  NavigatorMiddlewareCallback<AppState, ShowAboutDialogAction>(
+    callback: (navigatorKey, store, action, next) {
+      showAboutDialog(
+        context: navigatorKey.currentState.overlay.context,
+        applicationName: 'Example App',
+        applicationVersion: '1.0',
+      );
+    },
+  ),
+];
+
 void main() {
   final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,7 +34,10 @@ void main() {
         initialState: AppState(),
         middleware: [
           LoggingMiddleware<AppState>.printer(),
-          ...navigatorMiddleware<AppState>(navigatorKey),
+          ...navigatorMiddleware<AppState>(
+            navigatorKey,
+            customNavigatorCallbacks: _customCallbacks,
+          ),
         ],
       ),
       child: MaterialApp(

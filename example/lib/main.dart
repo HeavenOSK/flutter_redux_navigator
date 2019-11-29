@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:redux_logging/redux_logging.dart';
 import 'package:redux_navigator/redux_navigator.dart';
 
 class AppState {}
@@ -11,8 +10,8 @@ AppState appReducer(AppState state, dynamic action) {
 }
 
 void main() {
-  /// Important thing: You should set the same navigatorKey
-  /// to MaterialApp & below navigatorMiddleware.
+  /// Initialize navigatorKey which is used for passing to
+  /// [navigatorMiddleware] & [MaterialApp].
   final navigatorKey = GlobalKey<NavigatorState>();
 
   runApp(
@@ -21,10 +20,7 @@ void main() {
         appReducer,
         initialState: AppState(),
         middleware: [
-          LoggingMiddleware<AppState>.printer(),
-
-          /// Important thing: You should set the same navigatorKey
-          /// here & MaterialApp below .
+          /// Add navigatorMiddleware to middleware with [navigatorKey].
           ...navigatorMiddleware<AppState>(navigatorKey),
         ],
       ),
@@ -34,8 +30,7 @@ void main() {
           primarySwatch: Colors.blue,
         ),
 
-        /// Important thing: You should set the same navigatorKey
-        /// here & navigatorMiddleware above.
+        /// Pass navigatorKey to [MaterialApp].
         navigatorKey: navigatorKey,
         home: const HomePage(),
       ),
@@ -43,11 +38,14 @@ void main() {
   );
 }
 
+/// A page which presents list of infinity indexes.
 class HomePage extends StatelessWidget {
   const HomePage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    /// Get Store by using StoreProvider. The store will be used dispatching
+    /// Navigator Action.
     final store = StoreProvider.of<AppState>(context);
     return Scaffold(
       appBar: AppBar(
@@ -55,6 +53,9 @@ class HomePage extends StatelessWidget {
       ),
       body: ListView.builder(
         itemBuilder: (context, index) => InkWell(
+          /// Dispatch PushAction to navigate DetailPage.
+          ///
+          /// You can also use PushNamedAction with routeName parameter.
           onTap: () => store.dispatch(
             PushAction(
               MaterialPageRoute<void>(
@@ -88,6 +89,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
+/// Destination of [PushAction] above.
 class DetailPage extends StatelessWidget {
   const DetailPage({
     @required this.index,

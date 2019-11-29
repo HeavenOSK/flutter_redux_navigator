@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:redux_logging/redux_logging.dart';
 import 'package:redux_navigator/redux_navigator.dart';
 
 class AppState {}
@@ -11,6 +10,8 @@ AppState appReducer(AppState state, dynamic action) {
 }
 
 void main() {
+  /// Initialize navigatorKey which is used for passing to
+  /// [navigatorMiddleware] & [MaterialApp].
   final navigatorKey = GlobalKey<NavigatorState>();
 
   runApp(
@@ -19,8 +20,8 @@ void main() {
         appReducer,
         initialState: AppState(),
         middleware: [
-          LoggingMiddleware.printer(),
-          ...navigatorMiddleware(navigatorKey),
+          /// Add navigatorMiddleware to middleware with [navigatorKey].
+          ...navigatorMiddleware<AppState>(navigatorKey),
         ],
       ),
       child: MaterialApp(
@@ -28,18 +29,23 @@ void main() {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
+
+        /// Pass navigatorKey to [MaterialApp].
         navigatorKey: navigatorKey,
-        home: HomePage(),
+        home: const HomePage(),
       ),
     ),
   );
 }
 
+/// A page which presents list of infinity indexes.
 class HomePage extends StatelessWidget {
   const HomePage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    /// Get Store by using StoreProvider. The store will be used dispatching
+    /// Action of Navigator.
     final store = StoreProvider.of<AppState>(context);
     return Scaffold(
       appBar: AppBar(
@@ -47,9 +53,12 @@ class HomePage extends StatelessWidget {
       ),
       body: ListView.builder(
         itemBuilder: (context, index) => InkWell(
+          /// Dispatch PushAction to navigate DetailPage.
+          ///
+          /// You can also use PushNamedAction with routeName parameter.
           onTap: () => store.dispatch(
             PushAction(
-              MaterialPageRoute(
+              MaterialPageRoute<void>(
                 builder: (context) => DetailPage(index: index),
               ),
             ),
@@ -80,6 +89,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
+/// Destination of [PushAction] above.
 class DetailPage extends StatelessWidget {
   const DetailPage({
     @required this.index,

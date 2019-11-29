@@ -1,115 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:redux/redux.dart';
 
-import 'actions.dart';
+import 'basics/basics.dart';
 
-typedef _TypedMiddlewareCallback<State, Action> = void Function(
-    Store<State> store, Action action, NextDispatcher next);
+/// A callback specialized in [Navigator] related [Middleware]
+/// which is executed when type of action defined [T] matched.
+///
+/// You can add custom behavior to [navigatorMiddleware] using
+/// this.
+class NavigatorMiddlewareCallback<S, T> {
+  const NavigatorMiddlewareCallback({
+    @required this.callback,
+  }) : assert(callback != null);
 
-typedef NavigatorMiddlewareHandler<State, Action>
-    = _TypedMiddlewareCallback<State, Action> Function(
-        GlobalKey<NavigatorState> navigatorKey);
+  /// a callback which uses [NavigatorState] in middleware.
+  final void Function(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) callback;
 
-List<Middleware<dynamic>> navigatorMiddleware(
-  GlobalKey<NavigatorState> key, {
-  List<Middleware<dynamic>> customMiddleware = const [],
-}) {
-  assert(customMiddleware != null);
-  return [
-    TypedMiddleware<dynamic, PushAction>(
-      _handlePushAction(key),
-    ),
-    TypedMiddleware<dynamic, PushNamedAction>(
-      _handlePushNamedRoute(key),
-    ),
-    TypedMiddleware<dynamic, PushReplacementAction>(
-      _handlePushReplacementAction(key),
-    ),
-    TypedMiddleware<dynamic, PushReplacementNamedAction>(
-      _handlePushReplacementNamedAction(key),
-    ),
-    TypedMiddleware<dynamic, PushAndRemoveUntilAction>(
-      _handlePushAndRemoveUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, PushNamedAndRemoveUntilAction>(
-      _handlePushNamedAndRemoveUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, PopAction>(
-      _handlePopAction(key),
-    ),
-    TypedMiddleware<dynamic, MaybePopAction>(
-      _handleMaybePopAction(key),
-    ),
-    TypedMiddleware<dynamic, PopUntilAction>(
-      _handlePopUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, ShowDialogAction>(
-      _handleShowDialogAction(key),
-    ),
-    ...customMiddleware,
-  ];
+  /// Lets [callback] Act as a function in middleware.
+  void call(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) =>
+      callback(navigatorKey, store, action, next);
 }
 
-NavigatorMiddlewareHandler<dynamic, PushAction> _handlePushAction =
-    (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.push(action.route);
-};
+/// A specialized [MiddlewareClass] in [Navigator] controls
+/// which uses internally.
+class _TypedNavigatorMiddleware<S, T> implements MiddlewareClass<S> {
+  const _TypedNavigatorMiddleware({
+    @required this.navigatorKey,
+    @required this.callback,
+  })  : assert(navigatorKey != null),
+        assert(callback != null);
 
-NavigatorMiddlewareHandler<dynamic, PushNamedAction> _handlePushNamedRoute =
-    (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushNamed(action.routeName, arguments: action.arguments);
-};
+  final GlobalKey<NavigatorState> navigatorKey;
+  final NavigatorMiddlewareCallback<S, T> callback;
 
-NavigatorMiddlewareHandler<dynamic, PushReplacementAction>
-    _handlePushReplacementAction = (navigatorKey) {
-  return (_, action, __) =>
-      navigatorKey.currentState.pushReplacement(action.route);
-};
+  @override
+  void call(Store<S> store, dynamic action, NextDispatcher next) {
+    if (action is T) {
+      callback(navigatorKey, store, action, next);
+    } else {
+      next(action);
+    }
+  }
+}
 
-NavigatorMiddlewareHandler<dynamic, PushReplacementNamedAction>
-    _handlePushReplacementNamedAction = (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushReplacementNamed(action.routeName, arguments: action.arguments);
-};
+/// Returns list of [Navigator] controls related [Middleware].
+List<Middleware<S>> navigatorMiddleware<S>(
+  /// The [GlobalKey] for [Navigator] that you use. You need to set
+  /// the same [GlobalKey] for here and [MaterialApp] or [Navigator] that
+  /// you use.
+  GlobalKey<NavigatorState> navigatorKey, {
 
-NavigatorMiddlewareHandler<dynamic, PushAndRemoveUntilAction>
-    _handlePushAndRemoveUntilAction = (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushAndRemoveUntil(action.route, action.predicate);
-};
+  /// A list of custom [NavigatorMiddlewareCallback].
+  ///
+  /// You can add more behavior by giving list of custom
+  /// [NavigatorMiddlewareCallback]. If you specify no callbacks, only
+  /// [basicNavigatorCallbacks] will be used by default.
+  List<NavigatorMiddlewareCallback<S, dynamic>> customCallbacks = const [],
+}) {
+  assert(customCallbacks != null);
 
-NavigatorMiddlewareHandler<dynamic, PushNamedAndRemoveUntilAction>
-    _handlePushNamedAndRemoveUntilAction = (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.pushNamedAndRemoveUntil(
-        action.routeName,
-        action.predicate,
-        arguments: action.arguments,
-      );
-};
-
-NavigatorMiddlewareHandler<dynamic, PopAction> _handlePopAction =
-    (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.pop();
-};
-
-NavigatorMiddlewareHandler<dynamic, MaybePopAction> _handleMaybePopAction =
-    (navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.maybePop();
-};
-
-NavigatorMiddlewareHandler<dynamic, PopUntilAction> _handlePopUntilAction =
-    (navigatorKey) {
-  return (_, action, __) =>
-      navigatorKey.currentState.popUntil(action.predicate);
-};
-
-NavigatorMiddlewareHandler<dynamic, ShowDialogAction> _handleShowDialogAction =
-    (navigatorKey) {
-  return (_, action, __) => showDialog(
-        context: navigatorKey.currentState.overlay.context,
-        barrierDismissible: action.barrierDismissible,
-        builder: action.builder,
-      );
-};
+  final callbacks = basicNavigatorCallbacks<S>()..addAll(customCallbacks);
+  return [
+    ...callbacks.map(
+      (callback) => _TypedNavigatorMiddleware<S, dynamic>(
+        navigatorKey: navigatorKey,
+        callback: callback,
+      ),
+    ),
+  ];
+}

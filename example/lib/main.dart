@@ -20,7 +20,7 @@ void main() {
         initialState: AppState(),
         middleware: [
           LoggingMiddleware<AppState>.printer(),
-          ...NavigatorMiddleware<AppState>(navigatorKey).call(),
+          ...navigatorMiddleware<AppState>(navigatorKey),
         ],
       ),
       child: MaterialApp(

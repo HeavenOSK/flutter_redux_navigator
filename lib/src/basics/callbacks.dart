@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../middleware.dart';
 import 'actions.dart';
-import 'middleware.dart';
 
-List<NavigatorMiddlewareCallback<S, dynamic>> basicCallbacks<S>() {
+List<NavigatorMiddlewareCallback<S, dynamic>> basicNavigatorCallbacks<S>() {
   return [
     NavigatorMiddlewareCallback<S, PushAction>(
       callback: (key, state, action, next) =>

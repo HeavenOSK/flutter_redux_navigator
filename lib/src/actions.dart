@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 
+/// an action to call [Navigator.push].
 class PushAction {
   const PushAction(this.route);
 
   final Route route;
 }
 
+/// an action to call [Navigator.pushNamed].
 class PushNamedAction {
   const PushNamedAction(
     this.routeName, {
@@ -14,14 +16,21 @@ class PushNamedAction {
 
   final String routeName;
   final Object arguments;
+
+  @override
+  String toString() => 'PushNamedAction('
+      'routeName:$routeName'
+      ')';
 }
 
+/// an action to call [Navigator.pushReplacement].
 class PushReplacementAction {
   const PushReplacementAction(this.route);
 
   final Route route;
 }
 
+/// an action to call [Navigator.pushReplacement].
 class PushReplacementNamedAction {
   const PushReplacementNamedAction(
     this.routeName, {
@@ -30,6 +39,11 @@ class PushReplacementNamedAction {
 
   final String routeName;
   final Object arguments;
+
+  @override
+  String toString() => 'PushReplacementNamedAction('
+      'routeName:$routeName'
+      ')';
 }
 
 class PopAndPushNamedAction {
@@ -40,6 +54,11 @@ class PopAndPushNamedAction {
 
   final String routeName;
   final Object arguments;
+
+  @override
+  String toString() => 'PopAndPushNamedAction('
+      'routeName:$routeName'
+      ')';
 }
 
 class PushAndRemoveUntilAction {
@@ -59,6 +78,11 @@ class PushNamedAndRemoveUntilAction {
   final String routeName;
   final RoutePredicate predicate;
   final Object arguments;
+
+  @override
+  String toString() => 'PushNamedAndRemoveUntilAction('
+      'routeName:$routeName'
+      ')';
 }
 
 class PopAction {

@@ -3,10 +3,32 @@ import 'package:flutter/widgets.dart';
 import 'package:redux/redux.dart';
 
 import 'actions.dart';
-import 'callback.dart';
 
-class _NavigatorMiddleware<S, T> implements MiddlewareClass<S> {
-  const _NavigatorMiddleware({
+/// A callback which is executed when type of action defined [T] matched.
+///
+class NavigatorMiddlewareCallback<S, T> {
+  const NavigatorMiddlewareCallback({
+    @required this.callback,
+  });
+
+  final void Function(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) callback;
+
+  void call(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) =>
+      callback(navigatorKey, store, action, next);
+}
+
+class _TypedNavigatorMiddleware<S, T> implements MiddlewareClass<S> {
+  const _TypedNavigatorMiddleware({
     @required this.navigatorKey,
     @required this.callback,
   })  : assert(navigatorKey != null),
@@ -26,8 +48,6 @@ class _NavigatorMiddleware<S, T> implements MiddlewareClass<S> {
 }
 
 /// Returns list of simple [Middleware] which related [Navigator]'s controls.
-///
-/// All the [Middleware] here do only navigation or dialog related things.
 ///
 /// ### Example of how to add navigatorMiddleware.
 ///
@@ -53,7 +73,6 @@ class _NavigatorMiddleware<S, T> implements MiddlewareClass<S> {
 /// store.dispatch(
 ///   PushNamedAction('/detail/')
 /// );
-///
 List<Middleware<S>> navigatorMiddleware<S>(
   /// The [GlobalKey] for [Navigator] that you use. You need to set
   /// the same [GlobalKey] for here and [MaterialApp] or [Navigator] that
@@ -64,14 +83,14 @@ List<Middleware<S>> navigatorMiddleware<S>(
 }) {
   assert(customNavigatorCallbacks != null);
   return [
-    _NavigatorMiddleware<S, PushAction>(
+    _TypedNavigatorMiddleware<S, PushAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushAction>(
         callback: (key, state, action, next) =>
             key.currentState.push<void>(action.route),
       ),
     ),
-    _NavigatorMiddleware<S, PushNamedAction>(
+    _TypedNavigatorMiddleware<S, PushNamedAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushNamedAction>(
         callback: (key, state, action, next) => key.currentState.pushNamed(
@@ -80,14 +99,14 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, PushReplacementAction>(
+    _TypedNavigatorMiddleware<S, PushReplacementAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushReplacementAction>(
         callback: (key, state, action, next) =>
             key.currentState.pushReplacement<void, void>(action.route),
       ),
     ),
-    _NavigatorMiddleware<S, PushReplacementNamedAction>(
+    _TypedNavigatorMiddleware<S, PushReplacementNamedAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushReplacementNamedAction>(
         callback: (key, state, action, next) =>
@@ -97,7 +116,7 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, PopAndPushNamedAction>(
+    _TypedNavigatorMiddleware<S, PopAndPushNamedAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PopAndPushNamedAction>(
         callback: (key, state, action, next) =>
@@ -107,7 +126,7 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, PushAndRemoveUntilAction>(
+    _TypedNavigatorMiddleware<S, PushAndRemoveUntilAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushAndRemoveUntilAction>(
         callback: (key, state, action, next) =>
@@ -117,7 +136,7 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, PushNamedAndRemoveUntilAction>(
+    _TypedNavigatorMiddleware<S, PushNamedAndRemoveUntilAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PushNamedAndRemoveUntilAction>(
         callback: (key, state, action, next) =>
@@ -128,19 +147,19 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, PopAction>(
+    _TypedNavigatorMiddleware<S, PopAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PopAction>(
         callback: (key, state, action, next) => key.currentState.pop(),
       ),
     ),
-    _NavigatorMiddleware<S, MaybePopAction>(
+    _TypedNavigatorMiddleware<S, MaybePopAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, MaybePopAction>(
         callback: (key, state, action, next) => key.currentState.maybePop(),
       ),
     ),
-    _NavigatorMiddleware<S, PopUntilAction>(
+    _TypedNavigatorMiddleware<S, PopUntilAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, PopUntilAction>(
         callback: (key, state, action, next) => key.currentState.popUntil(
@@ -148,7 +167,7 @@ List<Middleware<S>> navigatorMiddleware<S>(
         ),
       ),
     ),
-    _NavigatorMiddleware<S, ShowDialogAction>(
+    _TypedNavigatorMiddleware<S, ShowDialogAction>(
       navigatorKey: navigatorKey,
       callback: NavigatorMiddlewareCallback<S, ShowDialogAction>(
         callback: (key, state, action, next) => showDialog<void>(
@@ -159,7 +178,7 @@ List<Middleware<S>> navigatorMiddleware<S>(
       ),
     ),
     ...customNavigatorCallbacks.map(
-      (callback) => _NavigatorMiddleware<S, dynamic>(
+      (callback) => _TypedNavigatorMiddleware<S, dynamic>(
         navigatorKey: navigatorKey,
         callback: callback,
       ),

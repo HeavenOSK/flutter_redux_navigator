@@ -11,6 +11,8 @@ AppState appReducer(AppState state, dynamic action) {
 }
 
 void main() {
+  /// Important thing: You should set the same navigatorKey
+  /// to MaterialApp & below navigatorMiddleware.
   final navigatorKey = GlobalKey<NavigatorState>();
 
   runApp(
@@ -20,7 +22,10 @@ void main() {
         initialState: AppState(),
         middleware: [
           LoggingMiddleware<AppState>.printer(),
-          ...navigatorMiddleware(navigatorKey),
+
+          /// Important thing: You should set the same navigatorKey
+          /// here & MaterialApp below .
+          ...navigatorMiddleware<AppState>(navigatorKey),
         ],
       ),
       child: MaterialApp(
@@ -28,6 +33,9 @@ void main() {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
+
+        /// Important thing: You should set the same navigatorKey
+        /// here & navigatorMiddleware above.
         navigatorKey: navigatorKey,
         home: const HomePage(),
       ),

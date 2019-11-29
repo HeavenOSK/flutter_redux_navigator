@@ -1,186 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:redux/redux.dart';
 
-import 'actions.dart';
+import 'basics/basics.dart';
 
-/// A function that uses for argument of [TypedMiddleware].
+/// A callback specialized in [Navigator] related [Middleware]
+/// which is executed when type of action defined [T] matched.
 ///
-/// This helps defining Action's Type of handler for [TypedMiddleware].
-///
-/// ### Example
-///
-/// TypedMiddlewareCallback<dynamic, PushAction> _handlePushAction(
-///   GlobalKey<NavigatorState> navigatorKey) {
-///     return (_, action, __)
-///       => navigatorKey.currentState.push<void>(action.route);
-/// }
-typedef TypedMiddlewareCallback<State, Action> = void Function(
-  Store<State> store,
-  Action action,
-  NextDispatcher next,
-);
+/// You can add custom behavior to [navigatorMiddleware] using
+/// this.
+class NavigatorMiddlewareCallback<S, T> {
+  const NavigatorMiddlewareCallback({
+    @required this.callback,
+  }) : assert(callback != null);
 
-/// Returns list of simple [Middleware] which related [Navigator]'s controls.
-///
-/// All the [Middleware] here do only navigation or dialog related things.
-///
-/// ### Example of how to add navigatorMiddleware.
-///
-/// final store = Store<AppState>(
-///   appReducer,
-///   initialState: AppState(),
-///   middleware: [
-///     ...navigatorMiddleware(navigatorKey),
-///   ],
-/// );
-///
-/// ### Example of how to use with [Route].
-///
-/// store.dispatch(
-///   PushAction(
-///     MaterialPageRoute<void>(
-///       builder: (context) => DetailPage(),
-///   ),
-/// );
-///
-/// ### Example of how to use with path.
-///
-/// store.dispatch(
-///   PushNamedAction('/detail/')
-/// );
-///
-List<Middleware<dynamic>> navigatorMiddleware(
+  /// a callback which uses [NavigatorState] in middleware.
+  final void Function(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) callback;
+
+  /// Lets [callback] Act as a function in middleware.
+  void call(
+    GlobalKey<NavigatorState> navigatorKey,
+    Store<S> store,
+    T action,
+    NextDispatcher next,
+  ) =>
+      callback(navigatorKey, store, action, next);
+}
+
+/// A specialized [MiddlewareClass] in [Navigator] controls
+/// which uses internally.
+class _TypedNavigatorMiddleware<S, T> implements MiddlewareClass<S> {
+  const _TypedNavigatorMiddleware({
+    @required this.navigatorKey,
+    @required this.callback,
+  })  : assert(navigatorKey != null),
+        assert(callback != null);
+
+  final GlobalKey<NavigatorState> navigatorKey;
+  final NavigatorMiddlewareCallback<S, T> callback;
+
+  @override
+  void call(Store<S> store, dynamic action, NextDispatcher next) {
+    if (action is T) {
+      callback(navigatorKey, store, action, next);
+    } else {
+      next(action);
+    }
+  }
+}
+
+/// Returns list of [Navigator] controls related [Middleware].
+List<Middleware<S>> navigatorMiddleware<S>(
   /// The [GlobalKey] for [Navigator] that you use. You need to set
   /// the same [GlobalKey] for here and [MaterialApp] or [Navigator] that
   /// you use.
-  GlobalKey<NavigatorState> key, {
+  GlobalKey<NavigatorState> navigatorKey, {
 
-  /// A list of custom [Middleware].
+  /// A list of custom [NavigatorMiddlewareCallback].
   ///
-  /// You can add extra [Middleware] which related [Navigator]'s controls here.
-  ///
-  /// ### Example
-  /// final store = Store<AppState>(
-  ///   appReducer,
-  ///   initialState: AppState(),
-  ///   middleware: [
-  ///     ...navigatorMiddleware(
-  ///       navigatorKey,
-  ///       customMiddleware: [
-  ///         animatedDialogMiddleware,
-  ///       ],
-  ///     ),
-  ///   ],
-  /// );
-  ///
-  List<Middleware<dynamic>> customMiddleware = const [],
+  /// You can add more behavior by giving list of custom
+  /// [NavigatorMiddlewareCallback]. If you specify no callbacks, only
+  /// [basicNavigatorCallbacks] will be used by default.
+  List<NavigatorMiddlewareCallback<S, dynamic>> customCallbacks = const [],
 }) {
-  assert(customMiddleware != null);
+  assert(customCallbacks != null);
+
+  final callbacks = basicNavigatorCallbacks<S>()..addAll(customCallbacks);
   return [
-    TypedMiddleware<dynamic, PushAction>(
-      _handlePushAction(key),
+    ...callbacks.map(
+      (callback) => _TypedNavigatorMiddleware<S, dynamic>(
+        navigatorKey: navigatorKey,
+        callback: callback,
+      ),
     ),
-    TypedMiddleware<dynamic, PushNamedAction>(
-      _handlePushNamedRoute(key),
-    ),
-    TypedMiddleware<dynamic, PushReplacementAction>(
-      _handlePushReplacementAction(key),
-    ),
-    TypedMiddleware<dynamic, PushReplacementNamedAction>(
-      _handlePushReplacementNamedAction(key),
-    ),
-    TypedMiddleware<dynamic, PopAndPushNamedAction>(
-      _handlePopAndPushNamedAction(key),
-    ),
-    TypedMiddleware<dynamic, PushAndRemoveUntilAction>(
-      _handlePushAndRemoveUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, PushNamedAndRemoveUntilAction>(
-      _handlePushNamedAndRemoveUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, PopAction>(
-      _handlePopAction(key),
-    ),
-    TypedMiddleware<dynamic, MaybePopAction>(
-      _handleMaybePopAction(key),
-    ),
-    TypedMiddleware<dynamic, PopUntilAction>(
-      _handlePopUntilAction(key),
-    ),
-    TypedMiddleware<dynamic, ShowDialogAction>(
-      _handleShowDialogAction(key),
-    ),
-    ...customMiddleware,
   ];
-}
-
-TypedMiddlewareCallback<dynamic, PushAction> _handlePushAction(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.push<void>(action.route);
-}
-
-TypedMiddlewareCallback<dynamic, PushNamedAction> _handlePushNamedRoute(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushNamed(action.routeName, arguments: action.arguments);
-}
-
-TypedMiddlewareCallback<dynamic, PushReplacementAction>
-    _handlePushReplacementAction(GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) =>
-      navigatorKey.currentState.pushReplacement<void, void>(action.route);
-}
-
-TypedMiddlewareCallback<dynamic, PushReplacementNamedAction>
-    _handlePushReplacementNamedAction(GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushReplacementNamed(action.routeName, arguments: action.arguments);
-}
-
-TypedMiddlewareCallback<dynamic, PopAndPushNamedAction>
-    _handlePopAndPushNamedAction(GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .popAndPushNamed(action.routeName, arguments: action.arguments);
-}
-
-TypedMiddlewareCallback<dynamic, PushAndRemoveUntilAction>
-    _handlePushAndRemoveUntilAction(GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState
-      .pushAndRemoveUntil<void>(action.route, action.predicate);
-}
-
-TypedMiddlewareCallback<dynamic, PushNamedAndRemoveUntilAction>
-    _handlePushNamedAndRemoveUntilAction(
-        GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.pushNamedAndRemoveUntil(
-        action.routeName,
-        action.predicate,
-        arguments: action.arguments,
-      );
-}
-
-TypedMiddlewareCallback<dynamic, PopAction> _handlePopAction(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.pop();
-}
-
-TypedMiddlewareCallback<dynamic, MaybePopAction> _handleMaybePopAction(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => navigatorKey.currentState.maybePop();
-}
-
-TypedMiddlewareCallback<dynamic, PopUntilAction> _handlePopUntilAction(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) =>
-      navigatorKey.currentState.popUntil(action.predicate);
-}
-
-TypedMiddlewareCallback<dynamic, ShowDialogAction> _handleShowDialogAction(
-    GlobalKey<NavigatorState> navigatorKey) {
-  return (_, action, __) => showDialog<void>(
-        context: navigatorKey.currentState.overlay.context,
-        barrierDismissible: action.barrierDismissible,
-        builder: action.builder,
-      );
 }

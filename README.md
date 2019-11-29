@@ -1,13 +1,12 @@
 # redux_navigator
 
-A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter & utils to add custom behavior of Navigator controls.
+A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter.
 
 This package is built to work with [Redux.dart](https://pub.dartlang.org/packages/redux) 3.0.0+.
 
 ## navigatorMiddleware
 
-  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware. You can also add more custom middleware by using `NavigatorMiddlewareCallback`.
-  * `NavigatorMiddlewareCallback` - A callback class for navigatorMiddleware. You can define custom behaviors with it.
+  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware.
 
 ## Dart Version
   * Dart 2.2.3+

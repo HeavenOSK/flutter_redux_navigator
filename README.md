@@ -6,8 +6,7 @@ This package is built to work with [Redux.dart](https://pub.dartlang.org/package
 
 ## navigatorMiddleware
 
-  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware. You can also add more custom middleware by using `NavigatorMiddlewareCallback`.
-  * `NavigatorMiddlewareCallback` - A callback class for navigatorMiddleware. You can define custom behaviors with it.
+  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware.
 
 ## Dart Version
   * Dart 2.2.3+

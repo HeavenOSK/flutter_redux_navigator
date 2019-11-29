@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// Get Store by using StoreProvider. The store will be used dispatching
-    /// Navigator Action.
+    /// Action of Navigator.
     final store = StoreProvider.of<AppState>(context);
     return Scaffold(
       appBar: AppBar(

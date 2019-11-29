@@ -1,6 +1,6 @@
 name: redux_navigator
-description: navigator util for redux
-version: 0.0.1
+description: A Redux middleware for Navigator of Flutter & utils to add custom behavior of Navigator controls.
+version: 0.1.0
 author: Ryunosuke Watanabe <heavenosk@gmail.com>
 homepage: https://github.com/HeavenOSK/redux_navigator
 environment:

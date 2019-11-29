@@ -1,14 +1,136 @@
 # redux_navigator
 
-A util of navigator to develop Flutter application with Redux by HeavenOSK.
+A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter & utils to add custom behavior of Navigator controls.
 
-## Getting Started
+This package is built to work with [Redux.dart](https://pub.dartlang.org/packages/redux) 3.0.0+.
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+## navigatorMiddleware
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware. You can also add more custom middleware by using `NavigatorMiddlewareCallback`.
+  * `NavigatorMiddlewareCallback` - A callback class for navigatorMiddleware. You can define custom behaviors with it.
+
+## Dart Version
+  * Dart 2.2.3+
+
+## Usage
+
+Demonstrate how to use `redux_navigator`.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import 'package:redux_navigator/redux_navigator.dart';
+
+class AppState {}
+
+AppState appReducer(AppState state, dynamic action) {
+  return state;
+}
+
+void main() {
+  /// Initialize navigatorKey which is used for passing to
+  /// [navigatorMiddleware] & [MaterialApp].
+  final navigatorKey = GlobalKey<NavigatorState>();
+
+  runApp(
+    StoreProvider<AppState>(
+      store: Store<AppState>(
+        appReducer,
+        initialState: AppState(),
+        middleware: [
+          /// Add navigatorMiddleware to middleware with [navigatorKey].
+          ...navigatorMiddleware<AppState>(navigatorKey),
+        ],
+      ),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+
+        /// Pass navigatorKey to [MaterialApp].
+        navigatorKey: navigatorKey,
+        home: const HomePage(),
+      ),
+    ),
+  );
+}
+
+/// A page which presents list of infinity indexes.
+class HomePage extends StatelessWidget {
+  const HomePage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    /// Get Store by using StoreProvider. The store will be used dispatching
+    /// Navigator Action.
+    final store = StoreProvider.of<AppState>(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('redux_heaven_demo'),
+      ),
+      body: ListView.builder(
+        itemBuilder: (context, index) => InkWell(
+          /// Dispatch PushAction to navigate DetailPage.
+          ///
+          /// You can also use PushNamedAction with routeName parameter.
+          onTap: () => store.dispatch(
+            PushAction(
+              MaterialPageRoute<void>(
+                builder: (context) => DetailPage(index: index),
+              ),
+            ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.black.withOpacity(0.3),
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Item: $index',
+                  style: Theme.of(context).textTheme.button,
+                ),
+                const Icon(Icons.navigate_next)
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Destination of [PushAction] above.
+class DetailPage extends StatelessWidget {
+  const DetailPage({
+    @required this.index,
+    Key key,
+  }) : super(key: key);
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Item Detail Page : $index'),
+      ),
+      body: Center(
+        child: Text(
+          'Item:$index',
+          style: Theme.of(context).textTheme.title,
+        ),
+      ),
+    );
+  }
+}
+
+```

@@ -1,4 +1,4 @@
 library redux_navigator;
 
-export 'src/actions.dart';
-export 'src/middleware.dart';
+export 'src/basics/basics.dart';
+export 'src/navigator_middleware.dart';

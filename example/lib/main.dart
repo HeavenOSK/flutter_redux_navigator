@@ -24,14 +24,14 @@ void main() {
           ...navigatorMiddleware<AppState>(
             navigatorKey,
             additionalMiddlewareBuilders: [
-              NavigatorMiddlewareBuilder<AppState, PushAction>(
+              CallbackNavigatorMiddlewareBuilder<AppState, PushAction>(
                 callback: (navigatorKey, store, action, next) {
                   navigatorKey.currentState.push<void>(
                     action.route,
                   );
                 },
               ),
-              NavigatorMiddlewareBuilder<AppState, PopAction>(
+              CallbackNavigatorMiddlewareBuilder<AppState, PopAction>(
                 callback: (navigatorKey, store, action, next) {
                   navigatorKey.currentState.pop();
                 },

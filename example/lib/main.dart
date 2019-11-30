@@ -3,11 +3,15 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_navigator/redux_navigator.dart';
 
-class AppState {}
+class AppState {
+  const AppState();
+}
 
 AppState appReducer(AppState state, dynamic action) {
   return state;
 }
+
+class ShowAlertDialogAction {}
 
 void main() {
   /// Initialize navigatorKey which is used for passing to
@@ -18,22 +22,22 @@ void main() {
     StoreProvider<AppState>(
       store: Store<AppState>(
         appReducer,
-        initialState: AppState(),
+        initialState: const AppState(),
         middleware: [
           /// Add navigatorMiddleware to middleware with [navigatorKey].
           ...navigatorMiddleware<AppState>(
             navigatorKey,
-            additionalMiddlewareBuilders: [
-              CallbackNavigatorMiddlewareBuilder<AppState, PushAction>(
+            customBuilders: [
+              NavigatorMiddlewareBuilder<AppState, ShowAlertDialogAction>(
                 callback: (navigatorKey, store, action, next) {
-                  navigatorKey.currentState.push<void>(
-                    action.route,
+                  showDialog<void>(
+                    context: navigatorKey.currentState.overlay.context,
+                    builder: (context) {
+                      return const AlertDialog(
+                        content: Text('Addtional Middleware'),
+                      );
+                    },
                   );
-                },
-              ),
-              CallbackNavigatorMiddlewareBuilder<AppState, PopAction>(
-                callback: (navigatorKey, store, action, next) {
-                  navigatorKey.currentState.pop();
                 },
               ),
             ],
@@ -66,6 +70,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('redux_heaven_demo'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          store.dispatch(ShowAlertDialogAction());
+        },
+        child: Icon(Icons.check),
       ),
       body: ListView.builder(
         itemBuilder: (context, index) => InkWell(

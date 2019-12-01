@@ -19,7 +19,7 @@ Demonstrate how to use `redux_navigator`.
   1. How to use default `navigatorMiddleware`.
   2. How to add custom behaviors with `NavigatorMiddlewareBuilder`. 
 
-### How to use default list of Navigator related middleware.
+### 1. How to use default list of Navigator related middleware.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -140,7 +140,7 @@ class DetailPage extends StatelessWidget {
 
 ```
 
-2. How to define custom behaviors. 
+### 2. How to define custom behaviors. 
 
 ```dart
 navigatorMiddleware<AppState>(

@@ -1,3 +1,6 @@
+## [0.2.0]
+* add custom builders. 
+
 ## [0.1.1]
 * BUG FIX.
 

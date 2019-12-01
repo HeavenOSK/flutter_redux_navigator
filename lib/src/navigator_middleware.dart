@@ -1,19 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:injectable_middleware/injectable_middleware.dart';
 import 'package:redux/redux.dart';
 
 import 'basics/basics.dart';
 
-/// A builder of [NavigatorMiddleware].
+/// A callback for [NavigatorMiddlewareBuilder].
+typedef NavigatorMiddlewareCallback<S, T> = void Function(
+  GlobalKey<NavigatorState> navigatorKey,
+  Store<S> store,
+  T action,
+  NextDispatcher next,
+);
+
+/// A builder of middleware for [Navigator] controls.
 ///
-/// You can define [Navigator] related procedure thorough [callback] parameter.
+/// You can define custom behaviors for [navigatorMiddleware] with it.
 ///
-/// When navigatorMiddleware is called,  [build] method will be called with
-/// an injected navigatorKey.
+/// Example:
+///
+/// navigatorMiddleware<AppState>(
+///    navigatorKey,
+///    customBuilders: [
+///      NavigatorMiddlewareBuilder<AppState, ShowAlertDialogAction>(
+///        callback: (navigatorKey, store, action, next) {
+///          showDialog<void>(
+///            context: navigatorKey.currentState.overlay.context,
+///            builder: (context) {
+///              return const AlertDialog(
+///                content: Text('Addtional Middleware'),
+///              );
+///            },
+///          );
+///        },
+///      ),
+///    ],
+///  ),
+///
 class NavigatorMiddlewareBuilder<S, T>
     extends InjectableMiddlewareBuilder<S, T, GlobalKey<NavigatorState>> {
   const NavigatorMiddlewareBuilder({
-    @required
-        InjectableMiddlewareCallback<S, T, GlobalKey<NavigatorState>> callback,
+    @required NavigatorMiddlewareCallback<S, T> callback,
   })  : assert(callback != null),
         super(callback: callback);
 }

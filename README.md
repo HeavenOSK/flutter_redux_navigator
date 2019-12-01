@@ -1,12 +1,13 @@
 # redux_navigator
 
-A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter.
+A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter & utils to add custom behavior of Navigator controls.
 
 This package is built to work with [Redux.dart](https://pub.dartlang.org/packages/redux) 3.0.0+.
 
 ## navigatorMiddleware
 
-  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware.
+  * `navigatorMiddleware` - A function that returns bundle of Navigator related middleware. You can also add more custom middleware by using `NavigatorMiddlewareCallback`.
+  * `NavigatorMiddlewareBuilder` - A builder class for navigatorMiddleware. You can define custom behaviors with it.
 
 ## Dart Version
   * Dart 2.2.3+
@@ -14,6 +15,11 @@ This package is built to work with [Redux.dart](https://pub.dartlang.org/package
 ## Usage
 
 Demonstrate how to use `redux_navigator`.
+
+  1. How to use default `navigatorMiddleware`.
+  2. How to add custom behaviors with `NavigatorMiddlewareBuilder`. 
+
+### How to use default list of Navigator related middleware.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -132,4 +138,28 @@ class DetailPage extends StatelessWidget {
   }
 }
 
+```
+
+2. How to define custom behaviors. 
+
+```dart
+navigatorMiddleware<AppState>(
+  navigatorKey,
+  customBuilders: [
+    /// You can add custom [Navigator] related behaviors by
+    /// specifying [NavigatorMiddlewareBuilder]s list.
+    NavigatorMiddlewareBuilder<AppState, ShowAlertDialogAction>(
+      callback: (navigatorKey, store, action, next) {
+        showDialog<void>(
+          context: navigatorKey.currentState.overlay.context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text('Addtional Middleware'),
+            );
+          },
+        );
+      },
+    ),
+  ],
+),
 ```

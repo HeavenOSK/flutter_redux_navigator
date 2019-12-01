@@ -3,11 +3,16 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_navigator/redux_navigator.dart';
 
-class AppState {}
+class AppState {
+  const AppState();
+}
 
 AppState appReducer(AppState state, dynamic action) {
   return state;
 }
+
+/// A custom [Navigator] related action.
+class ShowAlertDialogAction {}
 
 void main() {
   /// Initialize navigatorKey which is used for passing to
@@ -18,10 +23,28 @@ void main() {
     StoreProvider<AppState>(
       store: Store<AppState>(
         appReducer,
-        initialState: AppState(),
+        initialState: const AppState(),
         middleware: [
           /// Add navigatorMiddleware to middleware with [navigatorKey].
-          ...navigatorMiddleware<AppState>(navigatorKey),
+          ...navigatorMiddleware<AppState>(
+            navigatorKey,
+            customBuilders: [
+              /// You can add custom [Navigator] related behaviors by
+              /// specifying [NavigatorMiddlewareBuilder]s list.
+              NavigatorMiddlewareBuilder<AppState, ShowAlertDialogAction>(
+                callback: (navigatorKey, store, action, next) {
+                  showDialog<void>(
+                    context: navigatorKey.currentState.overlay.context,
+                    builder: (context) {
+                      return const AlertDialog(
+                        content: Text('Addtional Middleware'),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
       child: MaterialApp(
@@ -50,6 +73,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('redux_heaven_demo'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          store.dispatch(ShowAlertDialogAction());
+        },
+        child: Icon(Icons.check),
       ),
       body: ListView.builder(
         itemBuilder: (context, index) => InkWell(
@@ -100,14 +129,15 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final store = StoreProvider.of<AppState>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Item Detail Page : $index'),
       ),
       body: Center(
-        child: Text(
-          'Item:$index',
-          style: Theme.of(context).textTheme.title,
+        child: RaisedButton(
+          onPressed: () => store.dispatch(const PopAction()),
+          child: const Text('POP'),
         ),
       ),
     );

@@ -1,6 +1,6 @@
 # redux_navigator
 
-A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter & utils to add custom behavior of Navigator controls.
+A [Redux](https://pub.dartlang.org/packages/redux) middleware for Navigator of Flutter. You can use default Navigator related Action, and also add custom behaviors.
 
 This package is built to work with [Redux.dart](https://pub.dartlang.org/packages/redux) 3.0.0+.
 

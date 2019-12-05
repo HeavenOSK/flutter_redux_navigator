@@ -1,3 +1,6 @@
+## [0.2.1]
+* update dependencies for redux.dart-v4.0.0 
+
 ## [0.2.0]
 * add custom builders. 
 

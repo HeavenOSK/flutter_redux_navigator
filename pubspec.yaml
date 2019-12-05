@@ -1,6 +1,6 @@
 name: redux_navigator
 description: A Redux middleware for Navigator of Flutter. You can use default Navigator related Action, and also add custom behaviors.
-version: 0.2.0
+version: 0.2.1
 author: Ryunosuke Watanabe <heavenosk@gmail.com>
 homepage: https://github.com/HeavenOSK/redux_navigator
 environment:
@@ -8,9 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # todo: update to ^4.0.0
-  redux: ^3.0.0
-  injectable_middleware: ^0.1.1
+  redux: ^4.0.0
+  redux_heaven: ^0.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:injectable_middleware/injectable_middleware.dart';
 import 'package:redux/redux.dart';
+import 'package:redux_heaven/redux_heaven.dart';
 
 import 'basics/basics.dart';
 

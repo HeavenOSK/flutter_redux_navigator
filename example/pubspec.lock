@@ -47,26 +47,12 @@ packages:
       name: flutter_redux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.4"
+    version: "0.6.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
-  injectable_middleware:
-    dependency: transitive
-    description:
-      name: injectable_middleware
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.1"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.11.3+2"
   matcher:
     dependency: transitive
     description:
@@ -115,21 +101,21 @@ packages:
       name: redux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
-  redux_logging:
-    dependency: "direct main"
+    version: "4.0.0"
+  redux_heaven:
+    dependency: transitive
     description:
-      name: redux_logging
+      name: redux_heaven
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.1.0"
   redux_navigator:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.2.0"
+    version: "0.2.1"
   sky_engine:
     dependency: transitive
     description: flutter

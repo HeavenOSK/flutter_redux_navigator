@@ -8,6 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # todo: update to ^4.0.0
   redux: ^3.0.0
   injectable_middleware: ^0.1.1
 dev_dependencies:

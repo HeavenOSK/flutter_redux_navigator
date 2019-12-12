@@ -58,7 +58,7 @@ Iterable<Middleware<S>> navigatorMiddleware<S>(
   /// this method represents basic navigator related middleware.
   List<NavigatorMiddlewareBuilder<S, dynamic>> customBuilders = const [],
 }) {
-  //todo: assert
+  assert(customBuilders != null);
   return InjectableMiddleware<S, GlobalKey<NavigatorState>>(
     builders: [
       ...basicNavigatorBuilders<S>(),

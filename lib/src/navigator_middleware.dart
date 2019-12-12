@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
-import 'package:redux_heaven/redux_heaven.dart';
 
 import 'basics/basics.dart';
+import 'injectable_middleware/injectable_middleware.dart';
 
 /// A callback for [NavigatorMiddlewareBuilder].
 typedef NavigatorMiddlewareCallback<S, T> = void Function(
